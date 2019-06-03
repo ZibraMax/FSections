@@ -42,7 +42,7 @@ fileinput.onchange = function(evt) { //Evento que se acciona cada vez que se cam
     		if( evt.target.readyState == FileReader.DONE) { //All done :v
     			img.src = evt.target.result //Le pone como direccion al objeto img la direccion de la imagen del file reader.
     			img.onload = function() { //Esta linea es muy putamente importante, si no se verifica que la imagen cargue eso se vuelve un mierdero el hijueputa.
-					context.drawImage(img,0,0) //Aqui se puede hacer lo que se quiera despues de tener la imagen. #Grafico
+					context.drawImage(img,0,0,400,400) //Aqui se puede hacer lo que se quiera despues de tener la imagen. #Grafico
     			}
 			}
     	}    
@@ -55,17 +55,36 @@ fileinput.onchange = function(evt) { //Evento que se acciona cada vez que se cam
 function test1() { //Este test era para probar si podia usar la imagen despues de que los eventos anteriores actuen.
 	context.drawImage(img,0,0)
 }
-function test2(){
-var imageExampleFilters,
-	imageExampleFiltersOut	
-	imageExampleFilters = new MarvinImage();
-	imageExampleFilters.load(img.src, function(){
-		imageExampleFilters.draw(document.getElementById("canvas1"));
-		imageExampleFiltersOut = new MarvinImage(imageExampleFilters.getWidth(), imageExampleFilters.getHeight())
-		imageExampleFiltersOut.clear(0xFF000000);
-		Marvin.prewitt(imageExampleFilters, imageExampleFiltersOut);
-		Marvin.invertColors(imageExampleFiltersOut, imageExampleFiltersOut);
-		Marvin.thresholding(imageExampleFiltersOut, imageExampleFiltersOut, 150);
-		imageExampleFiltersOut.draw(document.getElementById("canvas1"))
+
+function filtro1() { //Forma de extraer contronos por edge detecting.
+	let inamgenEntrada,	imagenSalida //crea dos variables que represnetanals imagenes
+	inamgenEntrada = new MarvinImage(); //Creauna marvinimagen nueva para imagenentrada
+	inamgenEntrada.load(img.src, function(){ //Se pone la imagen con el src de la variable img declarara anteriormente
+		imagenSalida = new MarvinImage(inamgenEntrada.getWidth(), inamgenEntrada.getHeight()) // Crea una imagen de salida con iguales dimensiones que la imagen de entrada
+		imagenSalida.clear(0xFF000000); //Pone la imagen en blanco
+		Marvin.prewitt(inamgenEntrada, imagenSalida); //Proceso 1 prewitt.
+		Marvin.invertColors(imagenSalida, imagenSalida); //Proceso 2 invertir colores.
+		let th = parseFloat(document.getElementById('thresholding').value)
+		Marvin.thresholding(imagenSalida, imagenSalida, th); //Proceso 3 thresholding
+		let g = imagedata_to_image(imagenSalida.imageData) //Crea una imagen del imageData que retirna marvinj
+		g.onload = function() { //Cuando la imagen se carga
+			context.drawImage(g,0,0,400,400) //Imprime el resultado del filtro 1 en el canvas1
+		}
 	});
+}
+
+
+//##**&&-FUNCIONES ADICIONALES-##**&&
+
+
+function imagedata_to_image(imagedata) {//Funcion que transforma un string imageData a Imagen #Algotirmico.
+    var canvas = document.createElement('canvas'); //Crea un canvas parcial que no se mostrara nunca.
+    var ctx = canvas.getContext('2d'); //Extrae el contexto 2d.
+    canvas.width = imagedata.width; //Encuentra las propiedades.
+    canvas.height = imagedata.height; 
+    ctx.putImageData(imagedata, 0, 0); //Pone en el canvas ficticio la imagenData, debido a que ese metodo si lo permite.
+
+    var image = new Image(); //Crea una nueva imagen
+    image.src = canvas.toDataURL(); //Extrae el base64 de la imagen del canvas.
+    return image; //Retorna la imagen resultado, sin embargo, no tiene en cuenta el archivo onload.
 }
