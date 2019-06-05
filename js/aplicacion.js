@@ -31,6 +31,7 @@ const canvas = document.getElementById('canvas1') //Objeto Canvas en el que se d
 const context = canvas.getContext("2d") //Contexo 2d del canvas en el que se puede dibujar
 const fileinput = document.getElementById('image') //Nodo del Input para las imagenes
 var img = new Image() //Variable que representa la imagen actual.
+var imagenes = []
 
 fileinput.onchange = function(evt) { //Evento que se acciona cada vez que se cambia elinput de imagen #Principal
     let files = evt.target.files //Lista de archivos que se subieron.
@@ -56,19 +57,26 @@ function test1() { //Este test era para probar si podia usar la imagen despues d
 	context.drawImage(img,0,0)
 }
 
-function filtro1() { //Forma de extraer contronos por edge detecting.
+function filtro1(th) { //Forma de extraer contronos por edge detecting.
+	let g
 	let inamgenEntrada,	imagenSalida //crea dos variables que represnetanals imagenes
-	inamgenEntrada = new MarvinImage(); //Creauna marvinimagen nueva para imagenentrada
+	inamgenEntrada = new MarvinImage() //Creauna marvinimagen nueva para imagenentrada
 	inamgenEntrada.load(img.src, function(){ //Se pone la imagen con el src de la variable img declarara anteriormente
 		imagenSalida = new MarvinImage(inamgenEntrada.getWidth(), inamgenEntrada.getHeight()) // Crea una imagen de salida con iguales dimensiones que la imagen de entrada
-		imagenSalida.clear(0xFF000000); //Pone la imagen en blanco
-		Marvin.prewitt(inamgenEntrada, imagenSalida); //Proceso 1 prewitt.
-		Marvin.invertColors(imagenSalida, imagenSalida); //Proceso 2 invertir colores.
-		let th = parseFloat(document.getElementById('thresholding').value)
+		imagenSalida.clear(0xFF000000) //Pone la imagen en blanco
+		Marvin.prewitt(inamgenEntrada, imagenSalida) //Proceso 1 prewitt.
+		Marvin.invertColors(imagenSalida, imagenSalida) //Proceso 2 invertir colores.
+		if (th == undefined) {
+			th = parseFloat(document.getElementById('thresholding').value)
+		}
 		Marvin.thresholding(imagenSalida, imagenSalida, th); //Proceso 3 thresholding
-		let g = imagedata_to_image(imagenSalida.imageData) //Crea una imagen del imageData que retirna marvinj
+		g = imagedata_to_image(imagenSalida.imageData) //Crea una imagen del imageData que retirna marvinj
 		g.onload = function() { //Cuando la imagen se carga
 			context.drawImage(g,0,0,400,400) //Imprime el resultado del filtro 1 en el canvas1
+				let node = document.createElement('img')
+				node.setAttribute('src', g.src)
+				node.setAttribute('style', 'border: 2px solid black;')
+				imagenes.push(node)			
 		}
 	});
 }
@@ -78,13 +86,35 @@ function filtro1() { //Forma de extraer contronos por edge detecting.
 
 
 function imagedata_to_image(imagedata) {//Funcion que transforma un string imageData a Imagen #Algotirmico.
-    var canvas = document.createElement('canvas'); //Crea un canvas parcial que no se mostrara nunca.
-    var ctx = canvas.getContext('2d'); //Extrae el contexto 2d.
-    canvas.width = imagedata.width; //Encuentra las propiedades.
-    canvas.height = imagedata.height; 
-    ctx.putImageData(imagedata, 0, 0); //Pone en el canvas ficticio la imagenData, debido a que ese metodo si lo permite.
+    var canvas = document.createElement('canvas') //Crea un canvas parcial que no se mostrara nunca.
+    var ctx = canvas.getContext('2d') //Extrae el contexto 2d.
+    canvas.width = imagedata.width //Encuentra las propiedades.
+    canvas.height = imagedata.height 
+    ctx.putImageData(imagedata, 0, 0) //Pone en el canvas ficticio la imagenData, debido a que ese metodo si lo permite.
 
-    var image = new Image(); //Crea una nueva imagen
-    image.src = canvas.toDataURL(); //Extrae el base64 de la imagen del canvas.
-    return image; //Retorna la imagen resultado, sin embargo, no tiene en cuenta el archivo onload.
+    var image = new Image() //Crea una nueva imagen
+    image.src = canvas.toDataURL() //Extrae el base64 de la imagen del canvas.
+    return image //Retorna la imagen resultado, sin embargo, no tiene en cuenta el evento onload.
+}
+
+function test() {
+	for (var i = 220; i < 250; i++) {
+		let g = filtro1(i)
+	}
+}
+function descargarTofo() {
+	parent = document.getElementById('resultados')
+	for (var i = 0; i < imagenes.length; i++) {
+		downloadThat(imagenes[i],i)
+	}
+}
+function downloadThat(img,i) {
+	var canvasz = document.createElement("canvas")
+	var ctx = canvasz.getContext('2d')
+	canvasz.width = img.width //Encuentra las propiedades.
+    canvasz.height = img.height 
+	ctx.drawImage(img,0,0)
+	canvasz.toBlob(function(blob) {
+	    saveAs(blob, 'resultado_'+i+'.png')
+	});
 }
