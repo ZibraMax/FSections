@@ -66,17 +66,16 @@ function filtro1(th) { //Forma de extraer contronos por edge detecting.
 		imagenSalida.clear(0xFF000000) //Pone la imagen en blanco
 		Marvin.prewitt(inamgenEntrada, imagenSalida) //Proceso 1 prewitt.
 		Marvin.invertColors(imagenSalida, imagenSalida) //Proceso 2 invertir colores.
-		if (th == undefined) {
+		if (th == undefined) { //Cuando no se especifica el TH lo hace con el TH del documento
 			th = parseFloat(document.getElementById('thresholding').value)
 		}
 		Marvin.thresholding(imagenSalida, imagenSalida, th); //Proceso 3 thresholding
 		g = imagedata_to_image(imagenSalida.imageData) //Crea una imagen del imageData que retirna marvinj
 		g.onload = function() { //Cuando la imagen se carga
 			context.drawImage(g,0,0,400,400) //Imprime el resultado del filtro 1 en el canvas1
-				let node = document.createElement('img')
-				node.setAttribute('src', g.src)
-				node.setAttribute('style', 'border: 2px solid black;')
-				imagenes.push(node)			
+				let node = document.createElement('img') //Crea un elemento imagen
+				node.setAttribute('src', g.src) //Le asigna la direccion de la imagen
+				imagenes.push(node) //Agrega el elemento alarreglo
 		}
 	});
 }
@@ -86,35 +85,38 @@ function filtro1(th) { //Forma de extraer contronos por edge detecting.
 
 
 function imagedata_to_image(imagedata) {//Funcion que transforma un string imageData a Imagen #Algotirmico.
-    var canvas = document.createElement('canvas') //Crea un canvas parcial que no se mostrara nunca.
-    var ctx = canvas.getContext('2d') //Extrae el contexto 2d.
+    let canvas = document.createElement('canvas') //Crea un canvas parcial que no se mostrara nunca.
+    let ctx = canvas.getContext('2d') //Extrae el contexto 2d.
     canvas.width = imagedata.width //Encuentra las propiedades.
     canvas.height = imagedata.height 
     ctx.putImageData(imagedata, 0, 0) //Pone en el canvas ficticio la imagenData, debido a que ese metodo si lo permite.
 
-    var image = new Image() //Crea una nueva imagen
+    let image = new Image() //Crea una nueva imagen
     image.src = canvas.toDataURL() //Extrae el base64 de la imagen del canvas.
     return image //Retorna la imagen resultado, sin embargo, no tiene en cuenta el evento onload.
 }
 
-function test() {
-	for (var i = 220; i < 250; i++) {
-		let g = filtro1(i)
+function filtroMultiple() { //Filtro que cambia el thresholding de los resultados para poder comparar #Algoritmico
+	let inicio = parseInt(document.getElementById('inicio').value) //Cota de incio del TH
+	let final = parseInt(document.getElementById('final').value) //Cota de fin del TH
+	let outpu = document.getElementById('mensajes') //Nodo para salida de mensajes en lainterfaz 
+	for (var i = inicio; i < final; i++) {
+		let g = filtro1(i) //Crea un resultado nuevo para cada Th en el rango.
 	}
+	outpu.innerHTML = 'Se han generado ' + (final - inicio) + ' imagenes con resultados.' //Mensaje de salida
 }
-function descargarTofo() {
-	parent = document.getElementById('resultados')
+function descargarTodo() { //Descarga todos los resultados en el arreglo #Algoritmico
 	for (var i = 0; i < imagenes.length; i++) {
-		downloadThat(imagenes[i],i)
+		downloadThat(imagenes[i],'#' + i) //Descarga cada uno de los resultados y les asigna un nombre.
 	}
 }
-function downloadThat(img,i) {
-	var canvasz = document.createElement("canvas")
-	var ctx = canvasz.getContext('2d')
-	canvasz.width = img.width //Encuentra las propiedades.
+function downloadThat(img,etiqueta) { //Descarga la imagen que se leasigna con la etiqueta #Algoritmico
+	var canvasz = document.createElement("canvas") //Crea un canvas ficticio
+	var ctx = canvasz.getContext('2d') //Consigue el contexto 2d del canvas
+	canvasz.width = img.width //Encuentra las propiedades para igualarlas. 
     canvasz.height = img.height 
-	ctx.drawImage(img,0,0)
-	canvasz.toBlob(function(blob) {
-	    saveAs(blob, 'resultado_'+i+'.png')
+	ctx.drawImage(img,0,0) //Dibuja la imagen en el canvas
+	canvasz.toBlob(function(blob) { //Convierte elcanvas en un Binare Large Object BLOB
+	    saveAs(blob, 'resultado_'+ etiqueta +'.png') //Lo guarda individualmente.
 	});
 }
