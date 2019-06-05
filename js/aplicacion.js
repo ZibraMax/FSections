@@ -32,6 +32,7 @@ const context = canvas.getContext("2d") //Contexo 2d del canvas en el que se pue
 const fileinput = document.getElementById('image') //Nodo del Input para las imagenes
 var img = new Image() //Variable que representa la imagen actual.
 var imagenes = []
+var imagenesData = []
 
 fileinput.onchange = function(evt) { //Evento que se acciona cada vez que se cambia elinput de imagen #Principal
     let files = evt.target.files //Lista de archivos que se subieron.
@@ -49,7 +50,7 @@ fileinput.onchange = function(evt) { //Evento que se acciona cada vez que se cam
     	}    
 
     } else {
-        alert('Por favor introduce una imagen.')
+        alert('Por favor introduce una imagen.') //Mensaje de error
     }
 }
 
@@ -75,7 +76,8 @@ function filtro1(th) { //Forma de extraer contronos por edge detecting.
 			context.drawImage(g,0,0,400,400) //Imprime el resultado del filtro 1 en el canvas1
 				let node = document.createElement('img') //Crea un elemento imagen
 				node.setAttribute('src', g.src) //Le asigna la direccion de la imagen
-				imagenes.push(node) //Agrega el elemento alarreglo
+				imagenes.push(g) //Agrega el elemento alarreglo
+				imagenesData.push(imagenSalida)
 		}
 	});
 }
@@ -119,4 +121,75 @@ function downloadThat(img,etiqueta) { //Descarga la imagen que se leasigna con l
 	canvasz.toBlob(function(blob) { //Convierte elcanvas en un Binare Large Object BLOB
 	    saveAs(blob, 'resultado_'+ etiqueta +'.png') //Lo guarda individualmente.
 	});
+}
+function MarvinImageToRGBAMatrix(MImagen) {//Para el analisis se pasa una Marvin Imagen y seretorna una matriz del tamaño de la imagen donde cada casilla representa un color. Cada color tiene 4 casillas [0] = Red, [1] = Green, [2] = Blue, [3] = Alpha
+	let rawData = MImagen.imageData.data //Obtiene el data de la imagen
+	let arr = []
+	for (var i = 0; i < rawData.length; i+=4) { //Recorre la imagen de 4 en 4
+		let r = rawData[i+0]
+		let g = rawData[i+1]
+		let b = rawData[i+2]
+		let a = rawData[i+3]
+		let arrayTemporal = [r,g,b,a] //crea un arreglo que corresponde a cada pixel
+		arr.push(arrayTemporal) //Agrega cada pixel en un arreglo
+	}
+	let array = arregloAMatriz(arr,MImagen.width) //Crea una matriz
+	return array
+}
+function ImageToRGBAMatrix(image) {//Para el analisis se pasa una Imagen y seretorna una matriz del tamaño de la imagen donde cada casilla representa un color. Cada color tiene 4 casillas [0] = Red, [1] = Green, [2] = Blue, [3] = Alpha
+	let cv = document.createElement('canvas') //Crea un canvas virtual
+	cv.width = image.width //Modifica sus propiedades
+	cv.height = image.height
+	let cx = cv.getContext('2d') //Obtiene el contexto 2d
+	cx.drawImage(image,0,0,cv.width,cv.height) //Pone la imagen en el canvas
+	let rawData = cx.getImageData(0,0,cv.width,cv.height).data //Extrae la data de la imgen del canvas
+	let arr = []
+		for (let i = 0; i < rawData.length; i+=4) { //Recorre la imagen de 4 en 4
+		let r = rawData[i+0]
+		let g = rawData[i+1]
+		let b = rawData[i+2]
+		let a = rawData[i+3]
+		let arrayTemporal = [r,g,b,a] //crea un arreglo que corresponde a cada pixel
+		arr.push(arrayTemporal) //Agrega cada pixel en un arreglo
+	}
+	let array = arregloAMatriz(arr,cv.width) //Crea una matriz
+	return array
+}
+function arregloAMatriz(arreglo,numeroFilas) { //Convierte un arreglo a una matriz con el numero de filas especificado. las columnas se adaptan. Si la ultimafila no se alcanza a completar esta nose agrega. #Algoritmico
+	let f = 0
+	let matrix = []
+	let parcial = []
+	for (let i = 0; i < arreglo.length + 1; i++) { //Recorre todas las casillas de la matriz
+		if (i%numeroFilas == 0 && i != 0) { //Cuando esa condicion pasa se agrega una nueva fila.
+			matrix[f] = parcial //Agrega una nueva fila
+			f++ //Agrega uno al contador
+			parcial = [] //Reinicia la fila
+		}
+		parcial.push(arreglo[i]) //Agrega un elemento a la fila
+	}
+	return matrix //Retorna el resultado.
+}
+function RGBMatrixToCanvas(matrix,canvas) { //Pone una matriz RGB o RGBA en un canvas que se pasa por marametro #Grafico.
+	let ctx = canvas.getContext('2d') //Obtiene el contexto 2d del canvas
+	for (let i = 0; i < matrix.length; i++) { //Recorre cada una de las filas de la matriz
+		for (let j = 0; j < matrix[i].length; j++) { //Recorre cada uno de las columnas en la fila i.
+			let r = matrix[i][j][0] //Obtiene el color rojo
+			let g = matrix[i][j][1] //Obtiene el color verde
+			let b = matrix[i][j][2] //Obtiene el color azul
+			ctx.fillStyle = "rgba("+r+","+g+","+b+", 1)" //Asigna el color para dibujar
+			ctx.fillRect( j, i, 1, 1 ) //Dibuja un pixel.
+		}
+	}
+}
+function RGBMatrixToImage(matrix) {
+	let cv = document.createElement('canvas') //Crea un canvas virtual
+	cv.width = matrix[0].length //Modifica sus propiedades
+	cv.height = matrix.length
+	console.log(cv.width,cv.height)
+	RGBMatrixToCanvas(matrix,cv) //pone la imagen en un canvas
+    let image = new Image() //Crea una nueva imagen
+	image.height = cv.height
+    image.width = cv.width
+    image.src = cv.toDataURL() //Extrae el base64 de la imagen del canvas.
+	return image //Retorna la imagen resultado no tiene en cuanta el onload
 }
