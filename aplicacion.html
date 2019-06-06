@@ -99,12 +99,17 @@
                 <input type="text" class="form-control" placeholder="Final" value="250" id="final">
               </div>
               <div class="form-group">
+                Tolerancia Grietas
+                <input type="number" class="form-control" placeholder="Tolerancia" value="100" id="tol">
+              </div>
+              <div class="form-group">
                 <label id="mensajes"></label>
               </div>
               <div class="form-group">
                 <label class="btn btn-primary py-3 px-5" onclick="filtro1()">Aplicar Filtro Unico</label>
                 <label class="btn btn-primary py-3 px-5" onclick="filtroMultiple()">Filtro Multiple</label>
                 <label class="btn btn-primary py-3 px-5" onclick="descargarTodo()">Descargar Todos los Resultados</label>
+                <label class="btn btn-primary py-3 px-5" onclick="dibujarGrietas(imagenes[0])">Dibujar Grietas</label>
               </div>
             </form>
           </div>

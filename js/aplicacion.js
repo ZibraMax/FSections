@@ -22,6 +22,7 @@
 //	a. #Principal: Funcionamiento de la aplicacion, ejemplo, implementacion de botones.
 //	b. #Grafico: Todo lo que cambie el estado inicial del HTML.
 //	c. #Algoritmico: Todo los procesos que no interfieran la interfaz pero que sean necesarios para obtener un resultado.
+//  d. #Fatalitie: Elementos vitales del funcionamiento.
 //Las etiquetas siempre van al final de los comentarios, su objetivo es unicamente la facilidad de busqueda.
 //10. Para todos los propositos se usan comillas simples (''). lAS COMILLAS DOBLES SOLO SE USAN PARA ESTAR DENTRO DE UN STRING, ejemplo: let str = 'El gato me dijo: "Estas muy drogado" sin embargo, Yo nunca le crei.'
 //11. El ';' es inecesario, es opcional pero preferiblemente no se usa
@@ -48,19 +49,16 @@ fileinput.onchange = function(evt) { //Evento que se acciona cada vez que se cam
     			}
 			}
     	}    
-
     } else {
         alert('Por favor introduce una imagen.') //Mensaje de error
     }
 }
-
 function test1() { //Este test era para probar si podia usar la imagen despues de que los eventos anteriores actuen.
 	context.drawImage(img,0,0)
 }
-
 function filtro1(th) { //Forma de extraer contronos por edge detecting.
 	let g
-	let inamgenEntrada,	imagenSalida //crea dos variables que represnetanals imagenes
+	let inamgenEntrada,	imagenSalida 	//crea dos variables que represnetanals imagenes
 	inamgenEntrada = new MarvinImage() //Creauna marvinimagen nueva para imagenentrada
 	inamgenEntrada.load(img.src, function(){ //Se pone la imagen con el src de la variable img declarara anteriormente
 		imagenSalida = new MarvinImage(inamgenEntrada.getWidth(), inamgenEntrada.getHeight()) // Crea una imagen de salida con iguales dimensiones que la imagen de entrada
@@ -185,11 +183,80 @@ function RGBMatrixToImage(matrix) {
 	let cv = document.createElement('canvas') //Crea un canvas virtual
 	cv.width = matrix[0].length //Modifica sus propiedades
 	cv.height = matrix.length
-	console.log(cv.width,cv.height)
 	RGBMatrixToCanvas(matrix,cv) //pone la imagen en un canvas
     let image = new Image() //Crea una nueva imagen
 	image.height = cv.height
     image.width = cv.width
     image.src = cv.toDataURL() //Extrae el base64 de la imagen del canvas.
 	return image //Retorna la imagen resultado no tiene en cuanta el onload
+}
+function generarGrietas(i,j,arreglo,matriz) { //GENERA LOSARREGLOS QUE CONTIENEN LAS GRIETAS #Algoritmico #Fatalitie
+	if (matriz[i][j+1][0] == 0 && matriz[i][j+1][4] != 1) { //Revisa si el pixel de al lado es negro
+		matriz[i][j+1][4] = 1 //Marca el pixel como "Ya revisado"
+		arreglo.push('Grieta;' + i + ',' + (j+1)) //Agrega el pixel al arreglo de grietas
+		arreglo.concat(generarGrietas(i,j+1,arreglo,matriz)) //Recurre en esepixel para verificar la continuidad
+	} if (matriz[i][j-1][0] == 0 && matriz[i][j-1][4] != 1) { //Revisa si el pixel de al lado es negro
+		matriz[i][j-1][4] = 1 //Marca el pixel como "Ya revisado"
+		arreglo.push('Grieta;' + i + ',' + (j-1)) //Agrega el pixel al arreglo de grietas
+		arreglo.concat(generarGrietas(i,j-1,arreglo,matriz)) //Recurre en esepixel para verificar la continuidad
+	} if (matriz[i+1][j+1][0] == 0 && matriz[i+1][j+1][4] != 1) { //Revisa si el pixel de al lado es negro
+		matriz[i+1][j+1][4] = 1 //Marca el pixel como "Ya revisado"
+		arreglo.push('Grieta;' + (i+1) + ',' + (j+1)) //Agrega el pixel al arreglo de grietas
+		arreglo.concat(generarGrietas(i+1,j+1,arreglo,matriz)) //Recurre en esepixel para verificar la continuidad
+	} if (matriz[i+1][j-1][0] == 0 && matriz[i+1][j-1][4] != 1) { //Revisa si el pixel de al lado es negro
+		matriz[i+1][j-1][4] = 1 //Marca el pixel como "Ya revisado"
+		arreglo.push('Grieta;' + (i+1) + ',' + (j-1)) //Agrega el pixel al arreglo de grietas
+		arreglo.concat(generarGrietas(i+1,j-1,arreglo,matriz)) //Recurre en esepixel para verificar la continuidad
+	} if (matriz[i-1][j+1][0] == 0 && matriz[i-1][j+1][4] != 1) { //Revisa si el pixel de al lado es negro
+		matriz[i-1][j+1][4] = 1 //Marca el pixel como "Ya revisado"
+		arreglo.push('Grieta;' + (i-1) + ',' + (j+1)) //Agrega el pixel al arreglo de grietas
+		arreglo.concat(generarGrietas(i-1,j+1,arreglo,matriz)) //Recurre en esepixel para verificar la continuidad
+	} if (matriz[i-1][j-1][0] == 0 && matriz[i-1][j-1][4] != 1) { //Revisa si el pixel de al lado es negro
+		matriz[i-1][j-1][4] = 1 //Marca el pixel como "Ya revisado"
+		arreglo.push('Grieta;' + (i-1) + ',' + (j-1)) //Agrega el pixel al arreglo de grietas
+		arreglo.concat(generarGrietas(i-1,j-1,arreglo,matriz)) //Recurre en esepixel para verificar la continuidad
+	} if (matriz[i+1][j][0] == 0 && matriz[i+1][j][4] != 1) { //Revisa si el pixel de al lado es negro
+		matriz[i+1][j][4] = 1 //Marca el pixel como "Ya revisado"
+		arreglo.push('Grieta;' + (i+1) + ',' + (j)) //Agrega el pixel al arreglo de grietas
+		arreglo.concat(generarGrietas(i+1,j,arreglo,matriz)) //Recurre en esepixel para verificar la continuidad
+	} if (matriz[i-1][j][0] == 0 && matriz[i-1][j][4] != 1) { //Revisa si el pixel de al lado es negro
+		matriz[i-1][j][4] = 1 //Marca el pixel como "Ya revisado"
+		arreglo.push('Grieta;' + (i-1) + ',' + (j)) //Agrega el pixel al arreglo de grietas
+		arreglo.concat(generarGrietas(i-1,j,arreglo,matriz)) //Recurre en esepixel para verificar la continuidad
+	}
+	return arreglo //Retornael arreglo de Una sola grieta
+}
+function getGrietas(image,tolerancia) { //Encuentra todas las grietas de la imagen que se pasa como parametro, la tolerancia hace referencia a la longitud minima de la grieta en pixeles. #Algoritmico
+	let grietas = [] //Crea un arreglo de grietas vacio
+	let matrix = ImageToRGBAMatrix(image) //Encuentra la matriz RGBA de la imagen seleccioanda
+	for (var i = 1; i < matrix.length-1; i++) { //Recorre cada fila de la matriz
+		for (var j = 1; j < matrix[i].length-1; j++) { //Recorre cada pixel por la fila i
+			let arreglo = [] //Crea un arreglo parcial para almacenar una grieta
+			let grietai = generarGrietas(i,j,arreglo,matrix) //Encuentra la grieta en ese pixel
+			if (grietai.length >= tolerancia) { //Verifica la tolerancia de la grieta
+				grietas.push(grietai) //Agrega la grieta al arreglo
+			}
+		}
+	}
+	return grietas //Retorna un arreglo de grietas
+}
+function drawGrietas(grietas,canvas) { //Dibuja un arreglo de grietas en un canvas por parametro #Grafico
+	let ctx = canvas.getContext('2d') //Encuentra el contexto 2d
+	for (var i = 0; i < grietas.length; i++) { //Recorre cada una de las grietas
+		let grieticas = grietas[i] //Guarda la grieta en un arreglo porque si [Esta linea en parte sobra]
+		for (var j = 0; j < grieticas.length; j++) { //Recorre cada pixel de la grieta
+			ctx.fillStyle = "rgba("+0+","+0+","+0+", 1)" //Se asigna el color negro
+			let a = grieticas[j].split(';')[1].split(',')[0] //Selecciona el pixel x
+			let b = grieticas[j].split(';')[1].split(',')[1] //Selecciona el pixel y
+			ctx.fillRect( b, a, 1, 1 ) //Pinta el pixel pertenenciente a la Grieta
+		}
+	}
+}
+function dibujarGrietas(imagen) { //Agrega una imagen con las nuevas grietas #Grafico
+	let u = document.createElement('canvas') //Crea un canvas
+	u.width = imagen.width //Modifica sus propiedades
+	u.height = imagen.height
+	document.getElementById('resultados').appendChild(u) //Agrega el canvas aldocumento
+	let grietas = getGrietas(imagen,parseInt(document.getElementById('tol').value)) //Crea las nuevas grietas
+	drawGrietas(grietas,u) //Dibuja las grietas en el canvas
 }
