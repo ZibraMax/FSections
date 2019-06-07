@@ -34,6 +34,7 @@ const fileinput = document.getElementById('image') //Nodo del Input para las ima
 var img = new Image() //Variable que representa la imagen actual.
 var imagenes = []
 var imagenesData = []
+var grietasArray = []
 
 fileinput.onchange = function(evt) { //Evento que se acciona cada vez que se cambia elinput de imagen #Principal
     let files = evt.target.files //Lista de archivos que se subieron.
@@ -256,7 +257,53 @@ function dibujarGrietas(imagen) { //Agrega una imagen con las nuevas grietas #Gr
 	let u = document.createElement('canvas') //Crea un canvas
 	u.width = imagen.width //Modifica sus propiedades
 	u.height = imagen.height
-	document.getElementById('resultados').appendChild(u) //Agrega el canvas aldocumento
 	let grietas = getGrietas(imagen,parseInt(document.getElementById('tol').value)) //Crea las nuevas grietas
 	drawGrietas(grietas,u) //Dibuja las grietas en el canvas
+
+    let image = new Image() //Crea una nueva imagen
+    image.src = u.toDataURL() //Extrae el base64 de la imagen del canvas.
+	return image //Retorna la imagen resultado, sin embargo
+}
+function agregarAlCarrusel(imagenes,tipo) { //Agrega un arreglode imagenes alcarrusel #Grafico
+	var a  = ''
+	if (tipo == 'Grietas') {
+		a = 'Grieta Numero:'
+	} else if (tipo == 'Data') {
+		a = 'Resultado Numero:'
+	} else {
+		a = ''
+	}
+	let parent = document.getElementById('carrussel')
+	parent.className = parent.className.replace("invisible", "visible");
+	let parent2 = document.getElementById('dots')
+	for (var i = 0; i < imagenes.length; i++) {
+		let node = document.createElement('div')
+		node.setAttribute('class','mySlides')
+		let node2 = document.createElement('div')
+		node2.setAttribute('class','numbertext')
+		node2.textContent = ''+ (i+1) + '/' + imagenes.length
+		let node3 = imagenes[i]
+		node3.setAttribute('style',"width:100%")
+		let node4 = document.createElement('div')
+		node4.setAttribute('class','textCar')
+		node4.textContent = a + ' ' + (i+1)
+		node.appendChild(node2)
+		node.appendChild(node3)
+		node.appendChild(node4)
+		parent.appendChild(node)
+
+		let doti = document.createElement('span')
+		doti.setAttribute('class','dot')
+		doti.setAttribute('onclick','currentSlide('+(i+1)+')')
+		parent2.appendChild(doti)
+		showSlides(slideIndex);
+	}
+}
+function grietasMultiple(imagenes) { //Genera las grietas para un conjunto de resultados
+	for (var i = 0; i < imagenes.length; i++) {
+		let g = dibujarGrietas(imagenes[i])
+		g.onload = function() {
+			grietasArray.push(g)
+		}
+	}
 }

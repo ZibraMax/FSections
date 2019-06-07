@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="css/flaticon.css">
     <link rel="stylesheet" href="css/icomoon.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/estilosCarussel.css">
   </head>
   <body>
 	  <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
@@ -60,7 +61,7 @@
 	  </nav>
     <!-- END nav -->
 
-    <div class="hero-wrap hero-wrap-2" style="background-image: url('https://www.studzine.com/wp-content/uploads/2017/12/StudZine.com10.png');" data-stellar-background-ratio="0.5">
+    <div class="hero-wrap hero-wrap-2" style="background-image: url('images/banner.png');" data-stellar-background-ratio="0.5">
       <div class="overlay"></div>
       <div class="container">
         <div class="row no-gutters slider-text align-items-end justify-content-start">
@@ -77,6 +78,11 @@
         <div class="row d-flex mb-5 contact-info">
           <div class="col-md-12 mb-4">
             <h2 class="h4">Aplicacion</h2>
+            <div>Pasos:</div>
+            <div>1: Importar una imagen</div>
+            <div>2: Aplicar un filtro: Unico o Multiple</div>
+            <div>3: Crear las grietas [Boton 'Crear Grietas']</div>
+            <div>4: Hacer click en mostrar resultados, ya sean crudos o grietas.</div>
           </div>
         </div>
         <div class="row block-9">
@@ -96,7 +102,7 @@
               </div>
               <div class="form-group">
                 Final del Filtro multiple
-                <input type="text" class="form-control" placeholder="Final" value="250" id="final">
+                <input type="text" class="form-control" placeholder="Final" value="225" id="final">
               </div>
               <div class="form-group">
                 Tolerancia Grietas
@@ -108,8 +114,10 @@
               <div class="form-group">
                 <label class="btn btn-primary py-3 px-5" onclick="filtro1()">Aplicar Filtro Unico</label>
                 <label class="btn btn-primary py-3 px-5" onclick="filtroMultiple()">Filtro Multiple</label>
+                <label class="btn btn-primary py-3 px-5" onclick="grietasMultiple(imagenes)">Crear Grietas</label>
                 <label class="btn btn-primary py-3 px-5" onclick="descargarTodo()">Descargar Todos los Resultados</label>
-                <label class="btn btn-primary py-3 px-5" onclick="dibujarGrietas(imagenes[0])">Dibujar Grietas</label>
+                <label class="btn btn-primary py-3 px-5" onclick="agregarAlCarrusel(imagenes,'Data')">Mostrar Resultados Crudo</label>
+                <label class="btn btn-primary py-3 px-5" onclick="agregarAlCarrusel(grietasArray,'Grietas')">Mostrar Resultados Grietas</label>
               </div>
             </form>
           </div>
@@ -118,7 +126,18 @@
             <canvas id="canvas1" width="400" height="400" style=" border: 2px solid black; border-radius: 8px;"></canvas>
           </div>
         </div>
-        <div id="resultados">Resultados [WIP]</div>
+        <!--CARRUSEL DE FOTOS-->
+        <div id="carrusselContainer">
+          <div id="carrussel" class="slideshow-container invisible">
+            <a class="prev" onclick="plusSlides(-1)">&#10094; Anterior</a>
+            <a class="next" onclick="plusSlides(1)">Siguiente &#10095;</a>
+          </div>
+          <br>
+          <!-- The dots/circles -->
+          <div style="text-align:center" id="dots">
+             
+          </div>
+        </div>
       </div>
     </section>
 
@@ -221,5 +240,6 @@
   <script type="text/javascript" src="js/marvinj-0.9.js"></script>
   <script type="text/javascript" src="js/aplicacion.js"></script>
   <script type="text/javascript" src="js/FileSaver.js"></script>
+  <script type="text/javascript" src="js/jsCarussel.js"></script>
   </body>
 </html>
