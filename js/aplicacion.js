@@ -233,9 +233,11 @@ function getGrietas(image,tolerancia) { //Encuentra todas las grietas de la imag
 	for (var i = 1; i < matrix.length-1; i++) { //Recorre cada fila de la matriz
 		for (var j = 1; j < matrix[i].length-1; j++) { //Recorre cada pixel por la fila i
 			let arreglo = [] //Crea un arreglo parcial para almacenar una grieta
-			let grietai = generarGrietas(i,j,arreglo,matrix) //Encuentra la grieta en ese pixel
-			if (grietai.length >= tolerancia) { //Verifica la tolerancia de la grieta
-				grietas.push(grietai) //Agrega la grieta al arreglo
+			if (matrix[i][j][4] != 1) {
+				let grietai = generarGrietas(i,j,arreglo,matrix) //Encuentra la grieta en ese pixel
+				if (grietai.length >= tolerancia) { //Verifica la tolerancia de la grieta
+					grietas.push(grietai) //Agrega la grieta al arreglo
+				}
 			}
 		}
 	}
